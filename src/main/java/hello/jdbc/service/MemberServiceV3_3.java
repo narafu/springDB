@@ -3,38 +3,26 @@ package hello.jdbc.service;
 import hello.jdbc.domain.Member;
 import hello.jdbc.repository.MemberRepositoryV3;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.SQLException;
 
 
 /**
- * 트랜잭션 - 트랜잭션 템플릿
+ * 트랜잭션 - @Transactional AOP
  */
 @Slf4j
-public class MemberServiceV3_2 {
+public class MemberServiceV3_3 {
 
-    private final TransactionTemplate transactionTemplate;
     private final MemberRepositoryV3 memberRepository;
 
-    public MemberServiceV3_2(PlatformTransactionManager platformTransactionManager, MemberRepositoryV3 memberRepository) {
-        this.transactionTemplate = new TransactionTemplate(platformTransactionManager);
+    public MemberServiceV3_3(MemberRepositoryV3 memberRepository) {
         this.memberRepository = memberRepository;
     }
 
+    @Transactional
     public void accountTransfer(String fromId, String toId, int money) throws SQLException {
-        transactionTemplate.executeWithoutResult((status) -> {
-            try {
-                /**
-                 * 비즈니스 로직이 정상 수행되면 커밋한다.
-                 * uncheck 예외가 발생하면 롤백한다. 그 외의 경우 커밋한다.
-                 * */
-                bizLogic(fromId, toId, money); // 비즈니스 로직
-            } catch (SQLException e) {
-                throw new IllegalStateException(e);
-            }
-        });
+        bizLogic(fromId, toId, money); // 비즈니스 로직
     }
 
     private void bizLogic(String fromId, String toId, int money) throws SQLException {
